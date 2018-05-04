@@ -1,0 +1,243 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+    <title>ORCID Batch Claiming</title>
+    <!-- ************************************************* -->
+    <!-- JQuery Import (Mandatory for Thor)				   -->
+    <!-- ************************************************* -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
+    <link rel="stylesheet" type="text/css" href="https://www.ebi.ac.uk/europepmc/hubthor/resources/sample/css/batchclaim.css">
+
+    <!-- ************************************************* -->
+    <!-- Thor Library Import (Mandatory for Thor)		   -->
+    <!-- ************************************************* -->
+    <script type="text/javascript">
+        var script = document.createElement('script');
+        script.src = "js/ebithor-claiming.1.3.js";
+        script.onload = function () {
+            <!-- ************************************************ -->
+            <!-- Page Javascripts. Can be used as reference		  -->
+            <!-- ************************************************* -->
+            var batchClaimJs = document.createElement('script');
+            batchClaimJs.src = "js/batchclaim.js";
+            document.head.appendChild(batchClaimJs);
+        }
+        document.head.appendChild(script);
+    </script>
+
+    <!-- ************************************************* -->
+    <!-- Bootstrap Import (Not required for Thor)		   -->
+    <!-- ************************************************* -->
+    <link rel="stylesheet"
+          href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css"
+          integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u"
+          crossorigin="anonymous">
+    <link rel="stylesheet"
+          href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css"
+          integrity="sha384-rHyoN1iRsVXV4nD0JutlnGaslCJuC7uwjduW9SVrLvRYooPp2bWYgmgJQIXwl/Sp"
+          crossorigin="anonymous">
+    <script
+            src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"
+            integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa"
+            crossorigin="anonymous"></script>
+</head>
+
+<!-- onLoad to initialize the Thor integration -->
+<body style="overflow-y: hidden;"
+      onload="thorApplicationNamespace.loadClaimingInfo()">
+
+<header>
+    <div class="jumbotron">
+        <h2>Batch Claiming Example</h2>
+        <p>This is a template showcasing the optional Thor Batch Claiming
+            implementation. Use it as a starting point to create something
+            adapted to your own web page.</p>
+    </div>
+</header>
+
+<article>
+
+    <!-- ************************************************ -->
+    <!-- Messages for error and success					  -->
+    <!-- ************************************************* -->
+    <section>
+        <div class="errorMsgSection alert alert-danger" role="alert"
+             style="display: none">
+            <strong>Oh snap!</strong> Try reloading the page and submitting again.
+        </div>
+        <div class="successSection alert alert-success" role="alert"
+             style="display: none">
+            <strong>Well done!</strong> You successfully claimed your data
+            records.
+        </div>
+    </section>
+
+    <!-- ************************************************ -->
+    <!-- Main page informations	 						  -->
+    <!-- ************************************************* -->
+    <section>
+        <div class="row">
+
+            <!-- ************************************************ -->
+            <!-- Displayed when USER IS NOT LOGGED IN			  -->
+            <!-- ************************************************* -->
+            <div class="thor_div_showIf_notSigned">
+                <div class="panel panel-primary ">
+                    <div class="panel-heading">
+                        <h3 class="panel-title">Login Form</h3>
+                    </div>
+                    <div class="panel-body">
+                        <table>
+                            <tr>
+                                <td>Please sign-in to ORCID so you can claim your datasets</td>
+                            </tr>
+                            <tr>
+                                <td><br/></td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <button type="button"
+                                            class="btn btn-lg btn-success thor_a_generate_signinLink">
+                                        <img
+                                                src="https://www.ebi.ac.uk/europepmc/hubthor/resources/orcidtrans.png"
+                                                width="30px" height="30px"/> &nbsp;Sign in with ORCID
+                                    </button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td><br/></td>
+                            </tr>
+
+                            <tr>
+                                <td><input type="checkbox"
+                                           class="thor_checkbox_rememberMe_cookie"> Remember me on
+                                    this computer
+                                </td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ************************************************ -->
+            <!-- Displayed when USER HAS LOGGED IN				  -->
+            <!-- ************************************************* -->
+            <div class="thor_div_showIf_signedIn" style="display: none">
+
+                <div class="panel panel-primary">
+                    <div class="panel-heading">
+                        <div class="panel-title pull-left">
+                            <h3 class="panel-title">
+                                Welcome <label class="thor_label_show_userName"></label></h3>
+                        </div>
+                        <div class="panel-title pull-right">
+                            <button type="button" class="btn btn-xs btn-danger"
+                                    data-toggle="modal" data-target="#myModalLogout">Logout
+                            </button>
+                        </div>
+                        <div class="clearfix"></div>
+                    </div>
+                    <div class="panel-body">
+                        <table>
+                            <tr>
+                                <td>Selected the Datasets to claim into your ORCID Record</td>
+                            </tr>
+                            <tr>
+                                <td><br/></td>
+                            </tr>
+                        </table>
+                        <table class="table table-striped" id="myTable">
+                            <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>Accession Number</th>
+                                <th>Title</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            </tbody>
+                        </table>
+                        <table>
+                            <tr>
+                                <td><span data-toggle="tooltip" data-placement="right"
+                                          title="Select the datasets to claim">
+									<button type="button" class="btn btn-success"
+                                            data-toggle="modal" data-target="#myModal" id="claimBtn">Claim</button>
+							</span></td>
+                            </tr>
+
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+</article>
+
+<!-- ************************************************ -->
+<!-- POPUP for claiming confirmation				  -->
+<!-- ************************************************* -->
+<div id="myModal" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">Dataset Claiming</h4>
+            </div>
+            <div class="modal-body">
+                });
+            </div>
+            <div class="modal-footer">
+                <div class="footer-loading">
+                    <img id="imgLoading"
+                         src="//wwwdev.ebi.ac.uk/europepmc/thorTest/resources/giphy.gif"
+                         width="34px" height="34px"/> &nbsp;
+                </div>
+                <div>
+                    <button type="button" class="btn btn-success" id="btnSubmit"
+                            onclick="javascript:submitBatch()">Confirm
+                    </button>
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<!-- ************************************************ -->
+<!-- POPUP for Logout confirmation				  -->
+<!-- ************************************************* -->
+<div id="myModalLogout" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">Logout</h4>
+            </div>
+            <div class="modal-body">
+                <p>Do you want to logout?</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-warning"
+                        onclick="javascript:logout()">Logout
+                </button>
+                <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<!-- ************************************************ -->
+<!-- Page Javascripts. Can be used as reference		  -->
+<!-- ************************************************* -->
+
+<!-- Load popup content dynamically -->
+<script type="text/javascript" src="js/batchclaim_popup.js"></script>
+</body>
+</html>
